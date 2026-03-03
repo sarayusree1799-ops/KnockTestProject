@@ -1,0 +1,11 @@
+#!/bin/sh
+# Run Checkstyle
+mvn checkstyle:check
+
+# Check the exit code
+CHECKSTYLE_RESULT=$?
+if [ $CHECKSTYLE_RESULT -ne 0 ]; then
+    echo "Checkstyle failed. Commit aborted."
+    exit 1
+fi
+exit 0

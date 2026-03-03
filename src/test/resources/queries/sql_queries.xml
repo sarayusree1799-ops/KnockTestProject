@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+
+    <entry key="getLandRowIDDimAgent">
+        <![CDATA[
+    select LANDING_ROW_ID from ODS_BACKFILL.DIM_AGENT
+      where AGENT_ID_SOURCE = ? and VALID_FROM < ? order by LANDING_ROW_ID ASC;
+    ]]>
+    </entry>
+
+    <entry key="getRowIDAPIManager">
+        <![CDATA[
+    select ROW_ID, VALID_FROM from LANDING.PROD_API_MANAGER
+      where ID = ? and VALID_FROM < ? order by ROW_ID ASC;
+    ]]>
+    </entry>
+
+    <entry key="getSingleLandRowIDDIMAgent">
+        <![CDATA[
+    select LANDING_ROW_ID from ODS_BACKFILL.DIM_AGENT
+    where LANDING_ROW_ID=? and VALID_FROM < ?;
+  ]]>
+    </entry>
+
+    <entry key="getSingleRowIDAPIManager">
+        <![CDATA[
+    select ROW_ID from LANDING.PROD_API__MANAGER
+    where ROW_ID =? and VALID_FROM < ?;
+  ]]>
+    </entry>
+
+    <entry key="getEngagementScore">
+        <![CDATA[
+    select property_id, a.property_name as property_name, sum(engagement_red) as total_red, sum(engagement_green) as total_green,
+    round(iff(total_red + total_green = 0, 1, total_green / (total_green + total_red)), 3) as "averageScore"
+    from integration.realpage__engagement_metrics b left join ods.dim_property a on a.is_active=1 and a.property_id = b.property_id
+    where property_id in (?) and date between ? and ? group by property_id, property_name order by property_name;
+  ]]>
+    </entry>
+
+
+</properties>

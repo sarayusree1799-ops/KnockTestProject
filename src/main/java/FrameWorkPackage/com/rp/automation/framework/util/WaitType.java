@@ -1,0 +1,9 @@
+package FrameWorkPackage.com.rp.automation.framework.util;
+
+public enum WaitType {
+    WAIT_FOR_ELEMENT_TO_BE_DISPLAYED,
+    WAIT_FOR_ELEMENT_TO_BE_CLICKABLE,
+    WAIT_FOR_PAGE_TO_ENABLED,
+    WAIT_FOR_ELEMENT_TO_DISAPPEAR,
+    WAIT_FOR_FRAME_TO_BE_DISPLAYED
+}
