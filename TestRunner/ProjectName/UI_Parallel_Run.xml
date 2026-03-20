@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="UIAutomation" verbose="10" parallel="methods" thread-count="10">
+    <listeners>
+        <listener class-name="FrameWorkPackage.com.rp.reports.listeners.ATUReportsListenerExt"/>
+        <listener class-name="FrameWorkPackage.com.rp.reports.listeners.ConfigurationListener"/>
+        <listener class-name="FrameWorkPackage.com.rp.reports.listeners.MethodListener"/>
+        <listener class-name="FrameWorkPackage.com.rp.reports.listeners.ScreenShotListener"/>
+    </listeners>
+
+    <method-selectors>
+        <method-selector>
+            <script language="beanshell">
+                <![CDATA[Env = System.getProperty("env","beta");
+        if(Group.isEmpty()){
+          if(Env.isEmpty()){
+            // For running with other environment, replace the beta with alpha or prod
+            System.setProperty("env","");
+          }else{
+            System.setProperty("env",Env);
+          }
+          // return true;
+          // For running with group tags, comment above return true line and uncomment below return with group line
+          return groups.containsKey("sree");
+        }else{
+          return groups.containsKey(Group);
+        }
+        ]]>
+            </script>
+        </method-selector>
+    </method-selectors>
+
+    <test verbose="1" name="UI_Parallel_Run"> <!-- preserve-order="false" -->
+        <parameter name="browsername" value="chrome" />
+        <parameter name="browserversion" value="83" />
+        <parameter name="platform" value="windows" />
+
+        <packages>
+            <package name="com.knock.ui.*"/>
+        </packages>
+
+    </test>
+
+</suite>

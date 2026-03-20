@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+
+<suite name="UIAutomation" verbose="2" parallel="tests" thread-count="2">
+    <listeners>
+        <listener class-name="FrameWorkPackage.com.rp.reports.listeners.ATUReportsListenerExt"/>
+        <listener class-name="Reports.com.rp.reports.listeners.ConfigurationListener"/>
+        <listener class-name="Reports.com.rp.reports.listeners.MethodListener"/>
+        <listener class-name="FrameWorkPackage.com.rp.reports.listeners.ScreenShotListener"/>
+    </listeners>
+
+    <method-selectors>
+        <method-selector>
+            <script language="beanshell">
+                <![CDATA[
+        Group = System.getProperty("groupToRun","");
+        Env = System.getProperty("env","beta");
+        if(Group.isEmpty()){
+          if(Env.isEmpty()){
+            // For running with other environment, replace the beta with alpha or prod
+            System.setProperty("env","");
+          }else{
+            System.setProperty("env",Env);
+          }
+          // return true;
+          // For running with group tags, comment above return true line and uncomment below return with group line
+          return groups.containsKey("sree");
+        }else{
+          return groups.containsKey(Group);
+        }
+        ]]>
+            </script>
+        </method-selector>
+    </method-selectors>
+
+    <test verbose="1" name="UI_Sequence_Run"> <!-- preserve-order="false" -->
+    <parameter name="browsername" value="chrome" />
+    <parameter name="browserversion" value="83" />
+    <parameter name="platform" value="windows" />
+
+    <!--        <packages>
+        <package name="com.knock.ui.*"/>
+    </packages>-->
+
+    <classes>
+        <class name="com.knock.ui.lma.scripts.RobotClassPractiseTest">
+            <!--        <methods>
+                <include name="validateAdminLoginTest" />
+                &lt;!&ndash;<include name="validateCreateProspectTest" />&ndash;&gt;
+            </methods>-->
+        </class>
+    </classes>
+</test>
+
+</suite>

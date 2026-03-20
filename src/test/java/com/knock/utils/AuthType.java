@@ -1,0 +1,17 @@
+package com.knock.utils;
+
+public enum AuthType {
+    APIKEY,
+    AUTHTOKEN,
+    INTERNALAUTHTOKEN,
+    XAUTHTOKEN,
+    APPFOLIO,
+    REALPAGE,
+    LEASINGTEAMAUTHTOKEN,
+    YARDI,
+    SYNDICATION_WITH_RPX_KEY,
+    SYNDICATION_WITH_OUT_RPX_KEY,
+    FORM_PARAMS,
+    DOORWAY,
+    BASIC_AUTH,
+}

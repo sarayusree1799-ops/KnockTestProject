@@ -24,10 +24,10 @@ import java.util.List;
 import Reports.com.rp.reports.utils.Attributes;
 
 public class ATUReportsListener implements ITestListener, IExecutionListener, IReporter, ISuiteListener {
-    int runCount = 1;
-    List<ITestResult> passedTests = new ArrayList<>();
-    List<ITestResult> failedTests = new ArrayList<>();
-    List<ITestResult> skippedTests = new ArrayList<>();
+    protected int runCount = 1;
+    protected List<ITestResult> passedTests = new ArrayList<>();
+    protected List<ITestResult> failedTests = new ArrayList<>();
+    protected List<ITestResult> skippedTests = new ArrayList<>();
 
     public ATUReportsListener() {
     }
@@ -288,7 +288,7 @@ public class ATUReportsListener implements ITestListener, IExecutionListener, IR
         }
     }
 
-    private void initChecking() {
+    public void initChecking() {
         try {
             Directory.verifyRequiredFiles();
             SettingsFile.correctErrors();
