@@ -1,14 +1,13 @@
 package FrameWorkPackage.com.rp.automation.framework.util;
 
-import FrameWorkPackage.com.rp.automation.framework.webdriver.Page;
-import FrameWorkPackage.com.rp.automation.framework.webdriver.WebDriverBase;
+import FrameWorkPackage.com.rp.automation.framework.webdriver.*;
 
 import java.io.*;
 import java.sql.Timestamp;
-
-import org.json.JSONObject;
-import org.json.simple.parser.*;
 import java.util.Map;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.*;
 
 import net.lightbody.bmp.core.har.Har;
 
@@ -25,7 +24,7 @@ public class PageLoadUtil extends WebDriverBase {
 
     public void getPageLoadEndTime(Map<String, String> data, String HarFilePath, String projectName, String pageName) {
         this.getHarpFile(HarFilePath, data, pageName);
-        this.end_time = Page.getcurrentTime();
+        this.end_time = Page.getCurrentTime();
         this.diff = Page.duration(this.end_time, this.start_time);
         try {
             this.setLoadTestDataRecords(projectName, pageName, this.diff, this.start_time, this.end_time,
@@ -48,7 +47,7 @@ public class PageLoadUtil extends WebDriverBase {
             File harpFile = new File(HarFilePath + pageName + "_" + Integer.parseInt((String)data.get("TestDataCode")) + "_" +
                     this.start_time.getDate() + this.start_time.getTime() + ".harp");
             this.harJson = null;
-            this.harJson = this.getHarpJsonFile(har, harFile, harpFile);
+            this.harJson = this.getHarpJsonfile(har, harFile, harpFile);
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -96,25 +95,25 @@ public class PageLoadUtil extends WebDriverBase {
 
     public void setLoadTestRecord(String projectName, String pageName, long duration, Timestamp start_time, Timestamp end_time) {
         DBUtil dbutil = (DBUtil)this.getContext().getBean("dbUtil");
-        Object[] params = new Object[]{projectName, pageName, duration / 1000L, start_time, end_time, Page.getcurrentTime()};
+        Object[] params = new Object[]{projectName, pageName, duration / 1000L, start_time, end_time, Page.getCurrentTime()};
         dbutil.insertRow(this.getJdbcTemplate("automationJdbcTemplate"), DBUtil.getNamedQuery("setLoadTime"), params);
     }
 
     public void setLoadTestDataRecord(String projectName, String pageName, long duration, Timestamp start_time, Timestamp end_time, Integer string) {
         DBUtil dbutil = (DBUtil)this.getContext().getBean("dbUtil");
-        Object[] params = new Object[]{projectName, pageName, duration / 1000L, start_time, end_time, Page.getcurrentTime(), string};
+        Object[] params = new Object[]{projectName, pageName, duration / 1000L, start_time, end_time, Page.getCurrentTime(), string};
         dbutil.insertRow(this.getJdbcTemplate("automationJdbcTemplate"), DBUtil.getNamedQuery("setLoadTime"), params);
     }
 
     public void setLoadTestDataRecords(String projectName, String pageName, long duration, Timestamp start_time, Timestamp end_time, Integer string, String harJson) {
         DBUtil dbutil = (DBUtil)this.getContext().getBean("dbUtil");
-        Object[] params = new Object[]{projectName, pageName, duration / 1000L, start_time, end_time, Page.getcurrentTime(), string, harJson};
+        Object[] params = new Object[]{projectName, pageName, duration / 1000L, start_time, end_time, Page.getCurrentTime(), string, harJson};
         dbutil.insertRow(this.getJdbcTemplate("automationJdbcTemplate"), DBUtil.getNamedQuery("setLoadTime"), params);
     }
 
     public void setLoadTestDataRecords(String projectName, String pageName, long duration, Integer string) {
         DBUtil dbutil = (DBUtil)this.getContext().getBean("dbUtil");
-        Object[] params = new Object[]{projectName, pageName, duration, Page.getcurrentTime(), string};
+        Object[] params = new Object[]{projectName, pageName, duration, Page.getCurrentTime(), string};
         dbutil.insertRow(this.getJdbcTemplate("automationJdbcTemplate"), DBUtil.getNamedQuery("setLoadTime"), params);
     }
 

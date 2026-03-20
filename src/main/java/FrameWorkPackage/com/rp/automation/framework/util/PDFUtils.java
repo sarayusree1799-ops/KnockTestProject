@@ -10,7 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import javax.imageio.ImageIO;
 
-import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -59,7 +58,7 @@ public class PDFUtils {
     }
 
     public static PDDocument readPdfContent(String path) throws IOException {
-        pdfDocument = Loader.loadPDF(new File(path));
+        pdfDocument = PDDocument.load(new File(path));
         return pdfDocument;
     }
 

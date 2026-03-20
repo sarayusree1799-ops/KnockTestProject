@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>KnockkPracticeTest</groupId>
+    <groupId>KnockPracticeTest</groupId>
     <artifactId>KnockPractiseTest</artifactId>
     <version>1.0-SNAPSHOT</version>
 
@@ -30,7 +30,10 @@
         <javax-version>1.0</javax-version>
         <postgresql.version>42.7.2</postgresql.version>
         <springframework.version>5.3.33</springframework.version>
-        <pdfbox.version>3.0.0</pdfbox.version>
+        <pdfbox.version>2.0.6</pdfbox.version>
+        <twilio.version>10.1.2</twilio.version>
+        <awssdk.version>2.25.26</awssdk.version>
+        <snowflake-jdbc.version>3.13.33</snowflake-jdbc.version>
     </properties>
 
     <dependencies>
@@ -266,6 +269,35 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>${pdfbox.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>${twilio.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>sdk-core</artifactId>
+            <version>${awssdk.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.snowflake</groupId>
+            <artifactId>snowflake-jdbc</artifactId>
+            <version>${snowflake-jdbc.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.zafarkhaja</groupId>
+            <artifactId>java-semver</artifactId>
+            <version>0.9.0</version>
         </dependency>
     </dependencies>
 

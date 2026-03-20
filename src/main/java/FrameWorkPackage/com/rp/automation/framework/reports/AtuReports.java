@@ -5,11 +5,11 @@ import FrameWorkPackage.com.rp.automation.framework.annotations.AzureTestCaseId;
 import FrameWorkPackage.com.rp.automation.framework.util.AzureUtils;
 import FrameWorkPackage.com.rp.automation.framework.util.ImageComparisonsUtil;
 import FrameWorkPackage.com.rp.automation.framework.webdriver.DriverManager;
-import com.realpage.com.Reports.com.rp.reports.ATUReports;
-import com.realpage.com.Reports.com.rp.reports.logging.LogAs;
-import com.realpage.com.Reports.com.rp.reports.utils.Utils;
-import com.realpage.com.Reports.com.rp.selenium.reports.CaptureScreen;
-import com.realpage.com.Reports.com.rp.selenium.reports.CaptureScreen.ScreenshotOf;
+import Reports.com.rp.reports.ATUReports;
+import Reports.com.rp.reports.logging.LogAs;
+import Reports.com.rp.reports.utils.Utils;
+import Reports.com.rp.selenium.reports.CaptureScreen;
+import Reports.com.rp.selenium.reports.CaptureScreen.ScreenshotOf;
 import org.testng.ITestResult;
 
 import java.awt.image.BufferedImage;

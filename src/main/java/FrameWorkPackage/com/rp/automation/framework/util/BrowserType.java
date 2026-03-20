@@ -3,6 +3,7 @@ package FrameWorkPackage.com.rp.automation.framework.util;
 public enum BrowserType {
     FIREFOX("firefox"),
     CHROME("chrome"),
+    CHROME1("chrome1"),
     CHROMEHEADLESS("chromeheadless"),
     IE("ie"),
     EDGE("edge"),

@@ -6,18 +6,46 @@ import FrameWorkPackage.com.rp.automation.framework.util.Reporter;
 import FrameWorkPackage.com.rp.automation.framework.util.Reporter.TestStatus;
 import FrameWorkPackage.com.rp.automation.framework.util.WaitType;
 
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import selenium_shutterbug.assertthat.selenium_shutterbug.core.Capture;
+import selenium_shutterbug.assertthat.selenium_shutterbug.core.Shutterbug;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.openqa.selenium.*;
+import org.openqa.selenium.Point;
 import org.openqa.selenium.interactions.Action;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URLDecoder;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 
@@ -61,9 +89,9 @@ public class Page {
             pageElement.click();
             System.out.println("clicked");
             AtuReports.passResults1("Verify click action on: " + logMessage, "--", logMessage + " Should be clicked", logMessage + " is clicked");
-            Reporter.LogEvent(Reporter.TestStatus.PASS, "Verify click action on: " + logMessage, logMessage + " Should be clicked", logMessage + " is clicked");
+            Reporter.LogEvent(TestStatus.PASS, "Verify click action on: " + logMessage, logMessage + " Should be clicked", logMessage + " is clicked");
         } catch (Exception exception) {
-            Reporter.LogEvent(Reporter.TestStatus.FAIL, "Verify click action on: " + logMessage, logMessage + " Should be clicked", this.catchException(exception));
+            Reporter.LogEvent(TestStatus.FAIL, "Verify click action on: " + logMessage, logMessage + " Should be clicked", this.catchException(exception));
         }
     }
 
@@ -86,9 +114,9 @@ public class Page {
                 logMessage = "XXXXXXX";
             }
             AtuReports.passResults1("Verify text is entered to " + logMessage + " textbox", value, "Text '" + value + "' should be entered in to " + logMessage + " textbox", "Text '" + value + "' is entered in to " + logMessage + " textbox");
-            Reporter.LogEvent(Reporter.TestStatus.PASS, "Verify text is entered to " + logMessage + " textbox", "Text '" + value + "' should be entered in to " + logMessage + " textbox", "Text '" + value + "' is entered in to " + logMessage + " textbox");
+            Reporter.LogEvent(TestStatus.PASS, "Verify text is entered to " + logMessage + " textbox", "Text '" + value + "' should be entered in to " + logMessage + " textbox", "Text '" + value + "' is entered in to " + logMessage + " textbox");
         } catch (Exception exception) {
-            Reporter.LogEvent(Reporter.TestStatus.FAIL, "Verify text is entered to " + logMessage + " textbox", "Text '" + value + "' should be entered in to " + logMessage + " textbox", this.catchException(exception));
+            Reporter.LogEvent(TestStatus.FAIL, "Verify text is entered to " + logMessage + " textbox", "Text '" + value + "' should be entered in to " + logMessage + " textbox", this.catchException(exception));
             AtuReports.failResults("Failed to enter text in " + logMessage + " text Field", value, "Text '" + value + "' should be entered in to " + logMessage + " text Field", this.catchException(exception));
         }
     }
@@ -552,7 +580,7 @@ public class Page {
     }
 
     public String switchToWindows(String windowTitle) {
-        String windowname = null;
+        String windowname = "";
         String wTitle = null;
         boolean isWindowSelected = false;
         int count = 0;
@@ -562,13 +590,14 @@ public class Page {
             while (true) {
                 Set<String> WindowHandles = this.driver.getWindowHandles();
                 System.out.println("WindowHandles==" + WindowHandles);
-                for (windowname: WindowHandles) {
+                for (String windowname1: WindowHandles) {
                     System.out.println("windowName==" + windowname);
-                    this.driver.switchTo().window(windowname);
+                    this.driver.switchTo().window(windowname1);
                     wTitle = this.driver.getTitle();
                     System.out.println("wTitle===" + wTitle);
                     if (wTitle.contains(windowTitle)) {
                         isWindowSelected = true;
+                        windowname = windowname1;
                         break;
                     }
 
@@ -1371,5 +1400,918 @@ public class Page {
         Calendar cal = Calendar.getInstance();
         cal.add(5, dateRange);
         return cal;
+    }
+
+    public Calendar getDateFromCurrentDate(int yearRange, int monthRange, int dateRange) {
+        Calendar cal = Calendar.getInstance();
+        cal.add(5, dateRange);
+        cal.add(2, monthRange);
+        cal.add(1, yearRange);
+        return cal;
+    }
+
+    public Calendar getDateFromGivenDate(int yearRange, int monthRange, int dateRange, Calendar cal) {
+        cal.add(5, dateRange);
+        cal.add(2, monthRange);
+        cal.add(1, yearRange);
+        return cal;
+    }
+
+    public void verifyPageUrl(String url) {
+        String currentURL = this.driver.getCurrentUrl();
+        System.out.println("currentURL " + currentURL);
+        if (currentURL.equals(url)) {
+            AtuReports.passResults("Verify Url " + url, "--", url, currentURL);
+            Reporter.LogEvent(TestStatus.PASS, "Verify Url " + url, url, currentURL);
+        } else if (currentURL.contains(url)) {
+            AtuReports.passResults("Verify Url contains " + url, "--", url, currentURL);
+            Reporter.LogEvent(TestStatus.PASS, "Verify Url contains" + url, url, currentURL);
+        } else {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify Url " + url, url, currentURL);
+            AtuReports.failResults("Verify Url " + url, "--", url, currentURL);
+        }
+    }
+
+    public void refresh() {
+        this.driver.navigate().refresh();
+        this.waitForPageLoad();
+    }
+
+    public void switchToWindowUrl(String url) {
+        explicitWait(10);
+        Set<String> windowHandles = this.driver.getWindowHandles();
+        boolean flag = false;
+
+        try {
+            for(String windowHandle : windowHandles) {
+                this.driver.switchTo().window(windowHandle);
+                explicitWait(10);
+                this.waitForPageLoad();
+                if (this.driver.getCurrentUrl().contains(url)) {
+                    flag = true;
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify switch window to Url " + url, url, this.catchException(e));
+            AtuReports.failResults("Verify switch window to Url " + url, "--", url, this.catchException(e));
+        }
+
+        if (flag) {
+            AtuReports.passResults("Verify switch window to Url " + url, "--", url, "Switched to url");
+            Reporter.LogEvent(TestStatus.PASS, "Verify switch window to Url " + url, url, "Switched to url");
+        } else {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify switch window to Url " + url, url, "Unable to Switch to url");
+            AtuReports.failResults("Verify switch window to Url " + url, "--", url, "Unable to Switch to url");
+        }
+    }
+
+    public void invisibleOfText(String searchText) {
+        boolean findText = this.driver.findElement(By.cssSelector("body")).getText().contains(searchText);
+        if (findText) {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify invisible text " + searchText, searchText, searchText);
+            AtuReports.failResults("Verify invisible text " + searchText, "--", searchText, searchText);
+        } else {
+            AtuReports.passResults1("Verify invisible text " + searchText, "--", searchText, searchText);
+            Reporter.LogEvent(TestStatus.PASS, "Verify invisible text " + searchText, searchText, searchText);
+        }
+    }
+
+    public List<WebElement> getSelectOptions(WebElement selectElement) {
+        Select select = new Select(selectElement);
+        return select.getOptions();
+    }
+
+    public String getQuarter(String month) {
+        int value = (Integer.parseInt(month) - 1) / 3 + 1;
+        return "Q" + value;
+    }
+
+    public String getQuarterAndYear(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int year = cal.get(1);
+        int month = cal.get(2);
+        String quarter = this.getQuarter(String.valueOf(month));
+        System.out.println(quarter + " " + year + " quarter year;");
+        return quarter + " " + year;
+    }
+
+    public WebElement getLink(String linkText) {
+        return this.driver.findElement(By.linkText(linkText));
+    }
+
+    public WebElement getSubLink(String linkText) {
+        return this.driver.findElement(By.xpath("//span[@class='raul-left-navigation-item-display' and text()='" + linkText + "']"));
+    }
+
+    public List<WebElement> getLinks(String linkText) {
+        return this.driver.findElements(By.linkText(linkText));
+    }
+
+    public void compareText(String actual, String expected, String logMessage) {
+        if (actual.equals(expected)) {
+            AtuReports.passResults1("Verify text " + logMessage, "--", expected, actual);
+            Reporter.LogEvent(TestStatus.PASS, "Verify text " + logMessage, expected, actual);
+        } else {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify text " + logMessage, expected, actual);
+            AtuReports.failResults("Verify text " + logMessage, "--", expected, actual);
+        }
+    }
+
+    public void compareText(String actual, String expected) {
+        this.compareText(actual, expected, expected);
+    }
+
+    public List<String> getOptionsList(WebElement selectElement) {
+        Select select = new Select(selectElement);
+        List<WebElement> options = select.getOptions();
+        List<String> optionValues = new ArrayList<>();
+        for(WebElement option : options) {
+            optionValues.add(option.getText());
+        }
+        return optionValues;
+    }
+
+    public void compareList(List<String> listString1, List<String> listString2, String logmessage) {
+        boolean flag = false;
+        if (listString1 != null && listString2 != null && listString1.size() == listString2.size()) {
+            listString1.removeAll(listString2);
+            if (listString1.isEmpty()) {
+                flag = true;
+            }
+        }
+
+        if (flag) {
+            AtuReports.passResults1("Compare Lists", "--", logmessage, logmessage + " are same");
+            Reporter.LogEvent(TestStatus.PASS, "Compare Lists", logmessage, logmessage + " are same");
+        } else {
+            Reporter.LogEvent(TestStatus.FAIL, "Compare Lists", logmessage, logmessage + " are not same");
+            AtuReports.failResults("Compare Lists", "--", logmessage, logmessage + " are not same");
+        }
+    }
+
+    public String getAppCurrentUrl() {
+        String currentURL = this.driver.getCurrentUrl();
+        if (!currentURL.isEmpty()) {
+            currentURL = this.driver.getCurrentUrl();
+            AtuReports.passResults1("Get Current Application Url ", "--", "shoud get Live Application Url", currentURL);
+        } else {
+            currentURL = "Url";
+            AtuReports.failResults("Get Current Application Url", "--", "Shoud get Live Application Url", currentURL + " is Empty");
+        }
+
+        return currentURL;
+    }
+
+    public void acceptAlert() {
+        this.webDriverHelper.acceptAlert(180);
+    }
+
+    public void validateText(WebElement pageElement, String value, String logMessage) {
+        boolean isTextPresent = false;
+        try {
+            String text = pageElement.getText();
+            isTextPresent = text.contains(value);
+            System.out.println("pageElement.getText() " + text);
+            if (isTextPresent) {
+                AtuReports.passResults1("Verify text " + logMessage, "--", value, text);
+                Reporter.LogEvent(TestStatus.PASS, "Verify text " + logMessage, value, text);
+            } else {
+                Reporter.LogEvent(TestStatus.FAIL, "Verify text " + logMessage, value, text);
+                AtuReports.failResults("Verify text " + logMessage, "--", value, text);
+            }
+        } catch (Exception e) {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify text " + logMessage, value, this.catchException(e));
+            AtuReports.failResults("Verify text " + logMessage, "--", value, this.catchException(e));
+        }
+    }
+
+    public boolean isValidDate(String inDate, String format, String logMessage) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        try {
+            dateFormat.parse(inDate);
+        } catch (Exception e) {
+            Reporter.LogEvent(TestStatus.FAIL, logMessage + ": Date Format " + inDate, logMessage + ": " + inDate + " Date Format should be valid "
+                    + format, this.catchException(e) + " Date Format is not valid " + format);
+            AtuReports.failResults("Date Format " + inDate, "--", logMessage + ": " + inDate + " Date Format should be valid " + format,
+                    this.catchException(e) + " Date Format is not valid " + format);
+            return false;
+        }
+        AtuReports.passResults1(logMessage + ": Date Format " + inDate, "--", logMessage + ": " + inDate + " Date Format is valid " + format,
+                inDate + " Date Format is valid " + format);
+        Reporter.LogEvent(TestStatus.PASS, "Date Format is valid " + format, inDate + " Date Format is valid " + format, logMessage + ": " + inDate + " Date Format is valid " + format);
+        return true;
+    }
+
+    public void validateHelpLink(WebElement link, String title) {
+        String parenthandle = this.getCurrentWindowHandle();
+        this.click(link, "Help Link");
+        this.switchToWindow(title);
+        this.switchToWindowHandle(parenthandle);
+        this.closeAllTabsExceptParent();
+    }
+
+    public void isTextAbsent(WebElement pageElement, String logMessage) {
+        boolean isTextPresent = false;
+
+        try {
+            String text = this.getText(pageElement);
+            isTextPresent = !text.contains(logMessage);
+            if (isTextPresent) {
+                AtuReports.passResults("Verify text is not present" + logMessage, "--", logMessage, text);
+                Reporter.LogEvent(TestStatus.PASS, "Verify text is not present" + logMessage, logMessage, text);
+            } else {
+                Reporter.LogEvent(TestStatus.FAIL, "Verify text is not present" + logMessage, logMessage, text);
+                AtuReports.failResults("Verify text is not present" + logMessage, "--", logMessage, text);
+            }
+        } catch (Exception e) {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify text is not present" + logMessage, logMessage, this.catchException(e));
+            AtuReports.failResults("Verify text is not present" + logMessage, "--", logMessage, this.catchException(e));
+        }
+    }
+
+    public String hexToRgbA(String hex) {
+        return "rgb (" + Color.decode(hex).getRed() + "," + Color.decode(hex).getGreen() + "," + Color.decode(hex).getRed() + ")";
+    }
+
+    public String rgbToHex(String font_color) {
+        System.out.println(font_color + " font_color");
+        String[] color1;
+        if (font_color.contains("rgba(")) {
+            color1 = font_color.replace("rgba(", "").replace(")", "").split(",");
+        } else {
+            color1 = font_color.replace("rgb(", "").replace(")", "").split(",");
+        }
+
+        String hex = String.format("#%02x%02x%02x", Integer.parseInt(color1[0].trim()), Integer.parseInt(color1[1].trim()), Integer.parseInt(color1[2].trim()));
+        return hex;
+    }
+
+    public Date convertStringToDate(String inDate, String format) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        Date date = null;
+
+        try {
+            date = dateFormat.parse(inDate);
+        } catch (Exception e) {
+            Reporter.LogEvent(TestStatus.FAIL, "Date Format " + inDate, inDate + " Date Format should be valid " + format, this.catchException(e) + " Date Format is not valid " + format);
+            AtuReports.failResults("Date Format " + inDate, "--", inDate + " Date Format should be valid " + format, this.catchException(e) + " Date Format is not valid " + format);
+        }
+
+        return date;
+    }
+
+    public Calendar convertStringToCalender(String date, String format) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        Calendar cal = Calendar.getInstance();
+
+        try {
+            cal.setTime(dateFormat.parse(date));
+        } catch (Exception e) {
+            Reporter.LogEvent(TestStatus.FAIL, " Date Format " + date, date + " Date Format should be valid " + format, this.catchException(e) + " Date Format is not valid " + format);
+            AtuReports.failResults("Date Format " + date, "--", date + " Date Format should be valid " + format, this.catchException(e) + " Date Format is not valid " + format);
+        }
+
+        return cal;
+    }
+
+    public String convertCalenderToString(Calendar cal, String format) {
+        DateFormat sdf = new SimpleDateFormat(format);
+        String fromatedDateone = sdf.format(cal.getTime());
+        return fromatedDateone;
+    }
+
+    public static long daysBetween(Date date1, Date date2) {
+        long difference = (date1.getTime() - date2.getTime()) / 86400000L;
+        return Math.abs(difference);
+    }
+
+    public void validateBackgroundColor(WebElement element, String color, String logMessage) {
+        String actualColor = element.getCssValue("background-color");
+        if (actualColor.equals(color)) {
+            AtuReports.passResults1("Verify Background color " + logMessage, "--", "Background Color Should be " + color, "Background Color is " + actualColor);
+            Reporter.LogEvent(TestStatus.PASS, "Verify Background color " + logMessage, "Background Color Should be " + color, "Background Color is " + actualColor);
+        } else {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify Background color " + logMessage, "Background Color Should be " + color, "Color is " + actualColor);
+            AtuReports.failResults("Verify Background color " + logMessage, "--", "Background Color Should be " + color, "Background Color is " + actualColor);
+        }
+    }
+
+    public void validateColor(WebElement element, String color, String logMessage) {
+        String actualColor = element.getCssValue("color");
+        if (actualColor.equals(color)) {
+            AtuReports.passResults1("Verify color " + logMessage, "--", "Color Should be " + color, "Color is " + actualColor);
+            Reporter.LogEvent(TestStatus.PASS, "Verify color " + logMessage, "Color Should be " + color, "Color is " + actualColor);
+        } else {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify color " + logMessage, "Color Should be " + color, "Color is " + actualColor);
+            AtuReports.failResults("Verify color " + logMessage, "--", "Color Should be " + color, "Color is " + actualColor);
+        }
+    }
+
+    public static void validateFont(WebElement element, String format, String logMessage) {
+        String actualFont = element.getCssValue("font-family").toLowerCase();
+        if (actualFont.contains(format.toLowerCase())) {
+            AtuReports.passResults1("Verify font " + logMessage, "--", " Font Should be " + format, " Font is " + actualFont);
+            Reporter.LogEvent(TestStatus.PASS, "Verify  Font " + logMessage, " Font Should be " + format, " Font is " + actualFont);
+        } else {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify  Font " + logMessage, " Font Should be " + format, "Font is " + actualFont);
+            AtuReports.failResults("Verify  Font " + logMessage, "--", " Font Should be " + format, " Font is " + actualFont);
+        }
+    }
+
+    public String convertDatetoString(String date, String initialFormat, String finalFormat) {
+        return this.convertCalenderToString(this.convertStringToCalender(date, initialFormat), finalFormat);
+    }
+
+    public JSONObject convertStingToJsonObj(String jsonstring) {
+        String jsonString = jsonstring;
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+
+        try {
+            json = (JSONObject)parser.parse(jsonString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return json;
+    }
+
+    public static JSONArray convertStingToJSONArray(String jsonstring) {
+        String jsonString = jsonstring;
+        JSONParser parser = new JSONParser();
+        JSONArray array = null;
+
+        try {
+            array = (JSONArray)parser.parse(jsonString);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return array;
+    }
+
+    public static Timestamp getCurrentTime() {
+        return new Timestamp((new Date()).getTime());
+    }
+
+    public static long duration(Timestamp end_time, Timestamp start_time) {
+        return end_time.getTime() - start_time.getTime();
+    }
+
+    public void switchToFrameByAbsoluteXpath(String frame) {
+        try {
+            this.webDriverHelper.WAIT_FOR_FRAME_TO_BE_DISPLAYED(this.driver, 180, By.xpath(frame));
+            AtuReports.passResults1("Verify frame is: " + frame, "", "Frame Should be Switched to: " + frame, "Frame is Switched to: " + frame);
+            Reporter.LogEvent(TestStatus.PASS, "Verify frame is displayed: " + frame, "Frame Should be Switched to: " + frame, "Frame is Switched to: " + frame);
+        } catch (Exception exception) {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify frame is displayed: " + frame, "Frame Should be Switched to: " + frame, this.catchException(exception));
+            AtuReports.failResults("Verify " + frame + " is selected", "--", "Frame Should be Switched to :" + frame, this.catchException(exception));
+        }
+    }
+
+    public static int daysInMonth(GregorianCalendar c) {
+        int[] daysInMonths = new int[]{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        daysInMonths[1] += c.isLeapYear(c.get(1)) ? 1 : 0;
+        return daysInMonths[c.get(2)];
+    }
+
+    public String getLastDate(String format, Calendar cal) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        cal.set(5, cal.getActualMaximum(5));
+        return dateFormat.format(cal.getTime());
+    }
+
+    public void bringElementInView(WebElement element) {
+        ((JavascriptExecutor)this.driver).executeScript("arguments[0].scrollIntoView(true);", new Object[]{element});
+    }
+
+    public void bringElementInView(WebElement element, int offSet) {
+        Point p = element.getLocation();
+        String script = "window.scrollTo(" + p.getX() + ", " + (p.x - offSet) + ");";
+        ((JavascriptExecutor)this.driver).executeScript(script, new Object[0]);
+    }
+
+    public void scrollUp() {
+        ((JavascriptExecutor)this.driver).executeScript("scroll(0, -250);", new Object[0]);
+    }
+
+    public void scrollDown() {
+        ((JavascriptExecutor)this.driver).executeScript("scroll(0, 250);", new Object[0]);
+    }
+
+    public void scrollToBottomOfPage() {
+        JavascriptExecutor js = (JavascriptExecutor)this.driver;
+        js.executeScript("window.scrollTo(0, document.body.scrollHeight)", new Object[0]);
+    }
+
+    public void scrollToTopOfPage() {
+        JavascriptExecutor js = (JavascriptExecutor)this.driver;
+        js.executeScript("window.scrollTo(0, 0)", new Object[0]);
+    }
+
+    public void scrollToElement(WebElement element) {
+        Actions scrollAction = new Actions(this.driver);
+        scrollAction.keyDown(Keys.CONTROL).sendKeys(new CharSequence[]{Keys.END}).perform();
+        explicitWait(3);
+        Actions clickAction = new Actions(this.driver);
+        clickAction.moveToElement(element).build().perform();
+    }
+
+    public void validateElementsFontAndColor(String FontFamily, String htmlTagNames, String colors) {
+        AtuReports.passResults1("Page name of RAUL Changes :", this.driver.getTitle(), "", "");
+
+        for (WebElement element : this.driver.findElements(By.cssSelector("*"))) {
+            if (element.getText().trim().length() != 0) {
+                if (element.getCssValue("font-family").contains(FontFamily)) {
+                    AtuReports.passResults1("Verify RAUL Font Changes for Html TagName : " + element.getTagName(), "Font Name :" + FontFamily,
+                            "Expected Font name is '" + FontFamily + "' Text from UI is : " + element.getText() + " and its CLASS name is :" +
+                                    element.getAttribute("class"), "Actual Font values are : " + element.getCssValue("font-family"));
+                } else {
+                    AtuReports.notice("Verify RAUL Font Changes for Html TagName : " + element.getTagName(), "Font Name :" + FontFamily,
+                            "Expected Font name is '" + FontFamily + "' Text from UI is : " + element.getText() + " and its CLASS name is :" +
+                                    element.getAttribute("class"), "Actual Font values are : " + element.getCssValue("font-family"));
+                }
+            }
+
+            if (htmlTagNames.trim().length() != 0 && htmlTagNames.contains(element.getTagName())) {
+                String actualColor = element.getCssValue("color");
+                if (actualColor.equals(colors)) {
+                    AtuReports.notice("Verify RAUL Color Changes for Html TagName : " + element.getTagName(), "Element colors :" + colors,
+                            "Expected colors name is '" + colors + "' Element TEXT from UI is : " + element.getText() + " and its CLASS name is :" +
+                                    element.getAttribute("class"), "Actual color values are : " + actualColor);
+                } else {
+                    AtuReports.notice("Verify RAUL Color Changes for Html TagName : " + element.getTagName(), "Element color :" + colors,
+                            "Expected color name is '" + colors + "' Element TEXT from UI is : " + element.getText() + " and its CLASS name is :" +
+                                    element.getAttribute("class"), "Actual color values are : " + actualColor);
+                }
+            }
+        }
+    }
+
+    public void validateInvalidLinks(String tagName) {
+        int numberOfElementsFound = this.getNumberOfElementsFound(By.tagName(tagName));
+        System.out.println(numberOfElementsFound);
+
+        for(int pos = 0; pos < numberOfElementsFound - 1; ++pos) {
+            url = this.getElementWithIndex(By.tagName(tagName), pos).getAttribute("href");
+            if (url != null && !url.contains("javascript") && !url.isEmpty() && !url.startsWith("/") && !url.startsWith("tel")) {
+                verifyURLStatus(url);
+            }
+        }
+
+        AtuReports.passResults1("Valid Links Count", "", "Valid details ", "NO: of Valid Links::" + validLinksCount);
+        AtuReports.passResults1("Invalid Links Count", "", "InValid details ", "NO: of InValid Links::" + invalidLinksCount);
+        AtuReports.passResults1("Connection Error Url", "", "connection details ", "NO: of connection Links::" + connectionErrorUrl);
+    }
+
+    public static void verifyURLStatus(String URL) {
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet request = new HttpGet(URL);
+        try {
+            HttpResponse response = client.execute(request);
+            if (response.getStatusLine().getStatusCode() != 200) {
+                AtuReports.notice("InValid link url", URL, "200" + URL, "::" + response.getStatusLine().getStatusCode());
+                ++invalidLinksCount;
+            } else {
+                AtuReports.passResults1("Valid link url", URL, "200" + URL, "::" + response.getStatusLine().getStatusCode());
+                ++validLinksCount;
+            }
+        } catch (Exception e) {
+            AtuReports.notice("Connection Error url", URL, "Connection Error message for :" + URL, "Error details ::" + e.getMessage());
+            ++connectionErrorUrl;
+        }
+    }
+
+    public int getNumberOfElementsFound(By by) {
+        return this.driver.findElements(by).size();
+    }
+
+    public WebElement getElementWithIndex(By by, int pos) {
+        return (WebElement)this.driver.findElements(by).get(pos);
+    }
+
+    public void jsSendKeys(WebElement element, String value, String logMessage) {
+        try {
+            String id = element.getAttribute("id");
+            String script = "$('#" + id + "').val('" + value + "')";
+            ((JavascriptExecutor)this.driver).executeScript(script, new Object[0]);
+            element.sendKeys(new CharSequence[]{Keys.BACK_SPACE});
+        } catch (Exception exception) {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify text is entered to " + logMessage + " textbox", "Text '" + value + "' should be entered in to " + logMessage + " textbox", this.catchException(exception));
+        }
+    }
+
+    public String jsExecutorGetText(String script, String logMessage) {
+        String str = "";
+
+        try {
+            JavascriptExecutor js = (JavascriptExecutor)this.driver;
+            str = (String)js.executeScript(script, new Object[0]);
+        } catch (Exception var5) {
+        }
+
+        return str;
+    }
+
+    public void JsExecutor(String script, String logMessage) {
+        try {
+            JavascriptExecutor js = (JavascriptExecutor)this.driver;
+            js.executeScript(script, new Object[0]);
+        } catch (Exception var4) {
+        }
+    }
+
+    public void notEqualsToText(String actual, String expected, String logMessage) {
+        if (!actual.equals(expected)) {
+            AtuReports.passResults1("Verify text " + logMessage, "--", expected, actual);
+            Reporter.LogEvent(TestStatus.PASS, "Verify text " + logMessage, expected, actual);
+        } else {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify text " + logMessage, expected, actual);
+            AtuReports.failResults("Verify text " + logMessage, "--", expected, actual);
+        }
+    }
+
+    public void isTextPresent(String actual, String expected, String logMessage) {
+        if (actual.contains(expected)) {
+            AtuReports.passResults1("Verify text " + logMessage, "--", expected, actual);
+            Reporter.LogEvent(TestStatus.PASS, "Verify text " + logMessage, expected, actual);
+        } else {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify text " + logMessage, expected, actual);
+            AtuReports.failResults("Verify text " + logMessage, "--", expected, actual);
+        }
+    }
+
+    public void isTrue(boolean condition, String logMessage) {
+        if (condition) {
+            AtuReports.passResults1("Verify text is present " + logMessage, "--", logMessage, logMessage);
+            Reporter.LogEvent(TestStatus.PASS, "Verify text is present " + logMessage, logMessage, logMessage);
+        } else {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify text is not present " + logMessage, logMessage, logMessage);
+            AtuReports.failResults("Verify text is not present " + logMessage, "--", logMessage, logMessage);
+        }
+    }
+
+    public static int getPercentage(int amount, int percentage) {
+        int result = 0;
+        result = amount * percentage / 100;
+        return result;
+    }
+
+    public static Date addDays(Date date, int days) {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(date);
+        cal.add(5, days);
+        return cal.getTime();
+    }
+
+    public boolean isValidFormat(String inputDate, String format) {
+        boolean result = false;
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        try {
+            Date date = formatter.parse(inputDate);
+            System.out.println(date);
+            result = true;
+        } catch (Exception var6) {
+        }
+        return result;
+    }
+
+    public static String getTimeDifference(long from) {
+        long to = (new Date()).getTime();
+        long diff = to - from;
+        long diffSeconds = diff / 1000L % 60L;
+        long diffMinutes = diff / 60000L % 60L;
+        long diffHours = diff / 3600000L % 24L;
+        long diffDays = diff / 86400000L;
+        return diffDays + ":" + diffHours + ":" + diffMinutes + ":" + diffSeconds;
+    }
+
+    public Calendar toCalendar(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal;
+    }
+
+    public static String getCurrentTimeStamp() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        System.out.println(timestamp);
+        Date date = new Date();
+        System.out.println(new Timestamp(date.getTime()));
+        return sdf.format(timestamp);
+    }
+
+    public static String getCurrentTimeStampIncludingSS() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        System.out.println(timestamp);
+        Date date = new Date();
+        System.out.println(new Timestamp(date.getTime()));
+        return sdf.format(timestamp);
+    }
+
+    public void validateInvalidImages(String tagName) {
+        int numberOfElementsFound = this.getNumberOfElementsFound(By.tagName(tagName));
+        System.out.println(numberOfElementsFound);
+
+        for(int pos = 0; pos < numberOfElementsFound - 1; ++pos) {
+            url = this.getElementWithIndex(By.tagName(tagName), pos).getAttribute("src");
+            if (url != null && !url.contains("javascript") && !url.isEmpty() && !url.startsWith("/") && !url.startsWith("tel")) {
+                verifyURLStatus(url);
+            }
+        }
+
+        AtuReports.passResults1("Valid Images Count", "", "Valid details ", "NO: of Valid Images::" + validLinksCount);
+        AtuReports.passResults1("Invalid Images Count", "", "InValid details ", "NO: of InValid Images::" + invalidLinksCount);
+        AtuReports.passResults1("Connection Error Url", "", "connection details ", "NO: of connection Images::" + connectionErrorUrl);
+    }
+
+    public static String generateRandomChars() {
+        String candidateChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+
+        for(int i = 0; i < 8; ++i) {
+            sb.append(candidateChars.charAt(random.nextInt(candidateChars.length())));
+        }
+
+        return sb.toString();
+    }
+
+    public void removeAttribute(WebElement element, String attr) {
+        ((JavascriptExecutor)this.driver).executeScript("arguments[0].removeAttribute('" + attr + "')", new Object[]{element});
+    }
+
+    public void sendEmail(Map<String, String> data, String methodName) throws MessagingException, AddressException {
+        String[] mailTo = ((String)data.get("EmailTo")).toString().split(";");
+        String[] mailCc;
+        try {
+            mailCc = ((String)data.get("EmailCc")).toString().split(";");
+        } catch (Exception var10) {
+            mailCc = null;
+        }
+
+        String subject = ((String)data.get("EmailSubject")).toString() + " Execution is completed for " + (String)data.get("PmcName") + " -" + (new SimpleDateFormat("MM/dd/yyyy")).format(new Date());
+        Properties properties = new Properties();
+        properties.put("mail.smtp.host", "mail.realpage.com");
+        properties.put("mail.smtp.port", "25");
+        properties.put("mail.smtp.auth", "false");
+        properties.put("mail.smtp.starttls.enable", "false");
+        Session session = Session.getInstance(properties);
+        Message msg = new MimeMessage(session);
+        msg.setFrom(new InternetAddress("no_reply_QA@realpage.com"));
+        for(int i = 0; i < mailTo.length; ++i) {
+            msg.addRecipient(Message.RecipientType.TO, new InternetAddress(mailTo[i]));
+        }
+
+        if (mailCc != null) {
+            for(int i = 0; i < mailCc.length; ++i) {
+                msg.addRecipient(Message.RecipientType.CC, new InternetAddress(mailCc[i]));
+            }
+        }
+        msg.setSubject(subject);
+        msg.setSentDate(new Date());
+        if (methodName.equalsIgnoreCase("validateBIDesignerTest")) {
+            msg.setContent("<div>Hi Team,</div><br> <div>" + ((String)data.get("EmailSubject")).toString() + " Generation of excel reports task is completed for PMC " + ((String)data.get("PmcName")) + ".</br> <div>Thanks,<div>AOS Automation Team</div>", "text/html");
+        } else if (methodName.equalsIgnoreCase("widgetDataExportToExcel")) {
+            msg.setContent("<div>Hi Team,</div><br> <div>" + ((String)data.get("EmailSubject")).toString() + " Generation of excel reports task is completed for PMC " + ((String)data.get("PmcName")) + ".</br> <div>Thanks,<div>AOS Automation Team</div>", "text/html");
+        } else {
+            msg.setContent("<div>Hi Team,</div><br> <div>" + ((String)data.get("EmailSubject")).toString() + " Generation of excel reports task is completed for PMC " + ((String)data.get("PmcName")) + ".</div><div>Please execute the R Script.</div><br> <br><br><div><b>NOTE:</b> Please Check Both BI Designer Expense Per Unit and Revenue Per Unit emails for above mentioned PMC has been received successfully before executing R Script..</div><br><div>Thanks,<div>AOS Automation Team</div>", "text/html");
+        }
+        Transport.send(msg);
+    }
+
+    public BufferedImage getPageImage() {
+        explicitWait(4);
+        BufferedImage pageImage = Shutterbug.shootPage(this.driver, Capture.FULL_SCROLL).getImage();
+        return pageImage;
+    }
+
+    public BufferedImage getFullPageImage() {
+        explicitWait(4);
+        BufferedImage pageImage = Shutterbug.shootPage(this.driver, Capture.FULL_SCROLL).getImage();
+        return pageImage;
+    }
+
+    public BufferedImage getPageImage(WebElement header, WebElement footer) {
+        ((JavascriptExecutor)this.driver).executeScript("arguments[0].style.position='absolute'", new Object[]{header});
+        explicitWait(4);
+        ((JavascriptExecutor)this.driver).executeScript("arguments[0].style.position='absolute'", new Object[]{footer});
+        explicitWait(4);
+        BufferedImage pageImage = Shutterbug.shootPage(this.driver, Capture.FULL_SCROLL).getImage();
+        return pageImage;
+    }
+
+    public BufferedImage getPageImage(WebElement header, WebElement footer, WebElement leftNavigation) {
+        ((JavascriptExecutor)this.driver).executeScript("arguments[0].style.position='absolute'", new Object[]{header});
+        explicitWait(4);
+        ((JavascriptExecutor)this.driver).executeScript("arguments[0].style.position='absolute'", new Object[]{footer});
+        explicitWait(4);
+        ((JavascriptExecutor)this.driver).executeScript("arguments[0].style.visibility='hidden'", new Object[]{leftNavigation});
+        explicitWait(4);
+        BufferedImage pageImage = Shutterbug.shootPage(this.driver, Capture.FULL_SCROLL).getImage();
+        return pageImage;
+    }
+
+    public BufferedImage getPageImageHiddenElements(WebElement header, WebElement footer, WebElement leftNavigation) {
+        ((JavascriptExecutor)this.driver).executeScript("arguments[0].style.visibility='hidden'", new Object[]{header});
+        explicitWait(4);
+        ((JavascriptExecutor)this.driver).executeScript("arguments[0].style.visibility='hidden'", new Object[]{footer});
+        explicitWait(4);
+        ((JavascriptExecutor)this.driver).executeScript("arguments[0].style.visibility='hidden'", new Object[]{leftNavigation});
+        explicitWait(4);
+        BufferedImage pageImage = Shutterbug.shootPage(this.driver, Capture.FULL_SCROLL).getImage();
+        return pageImage;
+    }
+
+    public void webElementHide(WebElement element) {
+        try {
+            ((JavascriptExecutor)this.driver).executeScript("arguments[0].style.position='absolute'", new Object[]{element});
+            explicitWait(2);
+            AtuReports.passResults1("Verify is element Hiden " + element.getText(), "--", element.getText(), element.getText() + " Element Hide ");
+            Reporter.LogEvent(TestStatus.PASS, "Verify is element Hiden " + element.getText(), element.getText(), element.getText() + " Element Hide ");
+        } catch (Exception var3) {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify is element Hiden " + element.getText(), element.getText(), element.getText() + " Element Not Hide ");
+            AtuReports.failResults("Verify is element Hiden " + element.getText(), "--", element.getText(),  element.getText() + " Element Not Hide ");
+        }
+    }
+
+    public void webElementShow(WebElement element) {
+        try {
+            ((JavascriptExecutor)this.driver).executeScript("arguments[0].style.position='relative'", new Object[]{element});
+            explicitWait(2);
+            AtuReports.passResults1("Verify is element Visible " + element.getText(), "--", element.getText(), element.getText() + " Element Visible ");
+            Reporter.LogEvent(TestStatus.PASS, "is element Visible " + element.getText(), element.getText(),element.getText() + " Element Visible ");
+        } catch (Exception var3) {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify is element Visible " + element.getText(), element.getText(),  element.getText() + " Element Not Visible ");
+            AtuReports.failResults("Verify is element Visible " + element.getText(), "--", element.getText(), element.getText() + " Element Not Visible ");
+        }
+    }
+
+    public void copy(String text) {
+        Clipboard clipboard = this.getSystemClipboard();
+        clipboard.setContents(new StringSelection(text), (ClipboardOwner)null);
+    }
+
+    public void paste() throws AWTException {
+        Robot robot = new Robot();
+        robot.keyPress(17);
+        robot.keyPress(86);
+        robot.keyRelease(17);
+        robot.keyRelease(86);
+        robot.keyRelease(10);
+    }
+
+    public String get() throws Exception {
+        Clipboard systemClipboard = this.getSystemClipboard();
+        DataFlavor dataFlavor = DataFlavor.stringFlavor;
+        if (systemClipboard.isDataFlavorAvailable(dataFlavor)) {
+            Object text = systemClipboard.getData(dataFlavor);
+            return (String)text;
+        } else {
+            return null;
+        }
+    }
+
+    private Clipboard getSystemClipboard() {
+        Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+        Clipboard systemClipboard = defaultToolkit.getSystemClipboard();
+        return systemClipboard;
+    }
+
+    public void sendKeyActions(Keys sendKey) {
+        try {
+            Actions action = new Actions(this.driver);
+            action.sendKeys(new CharSequence[]{sendKey}).perform();
+        } catch (Exception e) {
+            AtuReports.failResults("Verify Sendkey action", "--", "Should be perform sendKeys action", "sendKeys is not perform: " + this.catchException(e));
+            Reporter.LogEvent(TestStatus.FAIL, "Should be perform sendKeys action", "sendKeys is not perform", this.catchException(e));
+        }
+    }
+
+    public void useEscapeElement() {
+        try {
+            Actions action = new Actions(this.driver);
+            action.sendKeys(new CharSequence[]{Keys.ESCAPE}).perform();
+            explicitWait(3);
+        } catch (Exception e) {
+            AtuReports.failResults("Verify close dialog using escape action", "--", "Should be able to hover", "Mouse hover is not success: " + this.catchException(e));
+            Reporter.LogEvent(TestStatus.FAIL, "Verify Mouse hover action", "Should be able to hover", this.catchException(e));
+        }
+    }
+
+    public void dynamicTextCompare(String actual, String pattenString) {
+        if (actual.matches(pattenString)) {
+            AtuReports.passResults1("Verify patten String ", "--", pattenString, actual + "<b> is matched");
+            Reporter.LogEvent(TestStatus.PASS, "patten String ", pattenString, actual);
+        } else {
+            Reporter.LogEvent(TestStatus.FAIL, "patten String ", pattenString, actual + "<b> is not matched");
+            AtuReports.failResults("Verify patten String", "--", pattenString, actual);
+        }
+    }
+
+    public void userActBeforeTimeOut(int sessionTimeOut) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        System.out.println("started time " + dtf.format(LocalDateTime.now()));
+        AtuReports.passResults("Verify timeOut start time ", "--", "started time ", "capture time :" + dtf.format(LocalDateTime.now()).toString());
+        for(int i = 0; i < sessionTimeOut * 60 / 300; ++i) {
+            explicitWait(300);
+            this.driver.navigate().refresh();
+            explicitWait(3);
+            System.out.println(dtf.format(LocalDateTime.now()));
+            if (this.driver.getCurrentUrl().contains("app/login")) {
+                AtuReports.failResults("Verify Session time-out idleTime < 30hrs ", "--", "application Session time-out before idleTime @ time: ", "capture time :" + dtf.format(LocalDateTime.now()).toString());
+                System.out.println("application Session time-out before idleTime @ time: " + dtf.format(LocalDateTime.now()).toString());
+                break;
+            }
+        }
+        AtuReports.passResults("Verify Session time-out idleTime < 30hrs ", "--", "user performing some activities on application @ time: ", "capture time :" + dtf.format(LocalDateTime.now()).toString());
+    }
+
+    public void sessionTimeOut(int sessionTimeOut, Boolean sessionActive) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        System.out.println("started time " + dtf.format(LocalDateTime.now()));
+        AtuReports.passResults("Verify timeOut start time ", "--", "started time ", "capture time :" + dtf.format(LocalDateTime.now()).toString());
+        this.driver.navigate().refresh();
+        explicitWait(3);
+        if (sessionActive) {
+            if (this.driver.getCurrentUrl().contains("app/login")) {
+                AtuReports.failResults1("Verify Session time-out idleTime < 30hrs ", "--", "application Session time-out before idleTime @ time: ", "capture time :" + dtf.format(LocalDateTime.now()).toString());
+                System.out.println("application Session time-out before idleTime @ time: " + dtf.format(LocalDateTime.now()).toString());
+            } else {
+                AtuReports.passResults("Verify Session time-out idleTime < 30hrs ", "--", "user performing some activities on application @ time: ", "capture time :" + dtf.format(LocalDateTime.now()).toString());
+                System.out.println("user performing some activities on application @ time: " + dtf.format(LocalDateTime.now()).toString());
+            }
+        }
+    }
+
+    public void deleteFilesinTempFolder() {
+        String reportFolderPath = System.getProperty("user.dir") + "\\temp";
+        File directory = new File(reportFolderPath);
+        File[] files = directory.listFiles();
+        for(int i = 0; i < files.length; ++i) {
+            files[i].delete();
+        }
+    }
+
+    public WebElement waitUntilClickable(WebElement element, String logMessage) {
+        this.waitForPageElement(element, WaitType.WAIT_FOR_ELEMENT_TO_BE_CLICKABLE, logMessage);
+        return element;
+    }
+
+    public WebElement waitUntilPresent(By locator) {
+        return this.waitUntilPresent(locator, 10);
+    }
+
+    public WebElement waitUntilPresent(By locator, int timeout) {
+        WebDriverWait wait = new WebDriverWait(this.driver, Duration.ofSeconds((long)timeout));
+        wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+        try {
+            return this.driver.findElement(locator);
+        } catch (Exception var5) {
+            return null;
+        }
+    }
+
+    public List<WebElement> waitUntilAllElementsPresent(By locator) {
+        return this.waitUntilAllElementsPresent(locator, 10);
+    }
+
+    public List<WebElement> waitUntilAllElementsPresent(By locator, int timeout) {
+        WebDriverWait wait = new WebDriverWait(this.driver, Duration.ofSeconds((long)timeout));
+        try {
+            wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+        } catch (Exception var5) {
+            return new ArrayList();
+        }
+        return this.driver.findElements(locator);
+    }
+
+    public void setImplicitWait(int seconds) {
+        this.driver.manage().timeouts().implicitlyWait(Duration.ofSeconds((long)seconds));
+    }
+
+    public void setImplicitWait(Duration duration) {
+        this.driver.manage().timeouts().implicitlyWait(duration);
+    }
+
+    public Duration getImplicitWait() {
+        return this.driver.manage().timeouts().getImplicitWaitTimeout();
+    }
+
+    public void waitForNumberOfWindowsToBePresent(int numberofWindows, int timeOut) {
+        try {
+            this.webDriverHelper.waitForNumberWindowsToBe(numberofWindows, timeOut);
+            AtuReports.passResults1("Verify Number Of Windows ", "--", numberofWindows + " should be appeared ",
+                    this.driver.getWindowHandles().size() + " is appeared");
+            Reporter.LogEvent(TestStatus.PASS, "Verify Number Of Windows ", numberofWindows + " should be appeared ",
+                    this.driver.getWindowHandles().size() + " is appeared");
+        } catch (Exception var4) {
+            Reporter.LogEvent(TestStatus.FAIL, "Verify Number Of Windows ", numberofWindows + " should be appeared ",
+                    this.driver.getWindowHandles().size() + " is appeared");
+            AtuReports.failResults("Verify Number Of Windows ", "--", numberofWindows + " should be appeared ",
+                    this.driver.getWindowHandles().size() + " is appeared");
+        }
     }
 }

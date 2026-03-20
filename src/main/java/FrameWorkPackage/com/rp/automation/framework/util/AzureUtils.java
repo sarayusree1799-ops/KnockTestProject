@@ -1,6 +1,8 @@
 package FrameWorkPackage.com.rp.automation.framework.util;
 
 import FrameWorkPackage.com.rp.automation.framework.annotations.AzureSuiteIDTestCaseId;
+import FrameWorkPackage.com.rp.automation.framework.annotations.AzureTestCaseId;
+import FrameWorkPackage.com.rp.automation.framework.webdriver.WebDriverBase;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHeaders;
@@ -16,13 +18,10 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import java.io.IOException;
 
 import org.apache.commons.codec.binary.Base64;
-import FrameWorkPackage.com.rp.automation.framework.annotations.AzureTestCaseId;
-import FrameWorkPackage.com.rp.automation.framework.annotations.AzureSuiteIDTestCaseId;
 import org.apache.http.util.EntityUtils;
 import org.testng.ITestResult;
 
-
-public class AzureUtils {
+public class AzureUtils extends WebDriverBase{
     public HttpClient httpClient = HttpClientBuilder.create().build();
     public String organizationUrl = "https://tfs.realpage.com/tfs/Realpage/";
     public String pAToken = "q3gyfsopv5y573on23u2otkqnxxuivykwmpxtqrvda2d7koqca"; // svc-automation
@@ -84,8 +83,8 @@ public class AzureUtils {
                 }
             }
             if (results.getMethod().getConstructorOrMethod().getMethod().getAnnotation(AzureSuiteIDTestCaseId.class) != null
-                    && results.getMethod().getConstructorOrMethod().getMethod().getAnnotation(AzureSuiteIDTestCaseId.class).suiteId() != null) {
-                suiteId = results.getMethod().getConstructorOrMethod().getMethod().getAnnotation(AzureSuiteIDTestCaseId.class).suiteId();
+                    && ((AzureSuiteIDTestCaseId) results.getMethod().getConstructorOrMethod().getMethod().getAnnotation(AzureSuiteIDTestCaseId.class)).suiteId() != null) {
+                suiteId = ((AzureSuiteIDTestCaseId) results.getMethod().getConstructorOrMethod().getMethod().getAnnotation(AzureSuiteIDTestCaseId.class)).suiteId();
 
                 String projectName = results.getMethod().getConstructorOrMethod().getMethod().getAnnotation(AzureSuiteIDTestCaseId.class).productName();
 

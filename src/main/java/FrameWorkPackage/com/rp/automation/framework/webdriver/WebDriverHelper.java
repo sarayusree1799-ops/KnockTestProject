@@ -91,8 +91,8 @@ public class WebDriverHelper {
         });
     }
 
-
-    public void waitForElementToBeClickable(WebElement pageElement, int timeOutPeriod) {
+//add log message to avoid overloading issues for compile error
+    public void waitForElementToBeClickable(WebElement pageElement, int timeOutPeriod, String logMessage) {
         WebDriverWait webDriverWait = new WebDriverWait(this.driver, Duration.ofSeconds((long)timeOutPeriod));
         webDriverWait.pollingEvery(Duration.ofMillis((long)timeOutPeriod));
         webDriverWait.until(ExpectedConditions.elementToBeClickable(pageElement));

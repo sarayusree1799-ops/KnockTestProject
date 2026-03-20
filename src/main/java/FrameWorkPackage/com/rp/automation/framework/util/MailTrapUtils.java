@@ -1,6 +1,6 @@
 package FrameWorkPackage.com.rp.automation.framework.util;
 
-import io.restassured.response.Response;
+import org.asynchttpclient.Response;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.asynchttpclient.DefaultAsyncHttpClient;
