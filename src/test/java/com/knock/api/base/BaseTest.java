@@ -3,7 +3,7 @@ package com.knock.api.base;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knock.api.plat.client.Community;
+
 import com.knock.utils.AssertionUtils;
 import com.knock.utils.AuthType;
 import com.knock.utils.SkipWithReducedStackTrace;
@@ -19,20 +19,20 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.awaitility.Awaitility;
+//import org.awaitility.Awaitility;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
-import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
-import software.amazon.awssdk.services.secretsmanager.SecretsManagerClientBuilder;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
-import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
-import software.amazon.awssdk.services.sts.StsClient;
-import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
-import software.amazon.awssdk.services.sts.model.AssumeRoleResponse;
+//import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
+//import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
+//import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+//import software.amazon.awssdk.regions.Region;
+//import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+//import software.amazon.awssdk.services.secretsmanager.SecretsManagerClientBuilder;
+//import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
+//import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
+//import software.amazon.awssdk.services.sts.StsClient;
+//import software.amazon.awssdk.services.sts.model.AssumeRoleRequest;
+//import software.amazon.awssdk.services.sts.model.AssumeRoleResponse;
 
 import java.io.File;
 import java.io.IOException;
@@ -371,11 +371,11 @@ public class BaseTest extends WebDriverBase {
 
     public void explicitWait(int timeInSeconds) {
         AtomicInteger counter = new AtomicInteger(1);
-        Awaitility.await().pollInSameThread().atMost(Duration.ofSeconds(timeInSeconds)).pollInterval(Duration.ofSeconds(1)).until(() -> {
-            counter.getAndIncrement();
-            boolean isTrue = counter.get() == timeInSeconds;
-            return isTrue;
-        });
+//        Awaitility.await().pollInSameThread().atMost(Duration.ofSeconds(timeInSeconds)).pollInterval(Duration.ofSeconds(1)).until(() -> {
+//            counter.getAndIncrement();
+//            boolean isTrue = counter.get() == timeInSeconds;
+//            return isTrue;
+//        });
     }
 
     public String generateUserAccessToken(String userId) {
@@ -498,21 +498,21 @@ public class BaseTest extends WebDriverBase {
         List<String> errorInfo = new ArrayList<>();
         try {
             // Default poll interval is 100ms
-            Awaitility.await().atMost(timeout, TimeUnit.SECONDS).pollInterval(pollInterval, TimeUnit.SECONDS).until(() ->
-            {
-                try {
-                    T value = supplier.get();
-                    result.set(value);
-                    conditionPassed[0] =  condition.test(value);
-                    return conditionPassed[0];
-                } catch (Error | Exception e) {
-                    // Continue polling until the specified time
-                    errorInfo.clear();
-                    errorInfo.add(e.getMessage());
-                    errorInfo.add(Arrays.toString(e.getStackTrace()));
-                    return false;
-                }
-            });
+//            Awaitility.await().atMost(timeout, TimeUnit.SECONDS).pollInterval(pollInterval, TimeUnit.SECONDS).until(() ->
+//            {
+//                try {
+//                    T value = supplier.get();
+//                    result.set(value);
+//                    conditionPassed[0] =  condition.test(value);
+//                    return conditionPassed[0];
+//                } catch (Error | Exception e) {
+//                    // Continue polling until the specified time
+//                    errorInfo.clear();
+//                    errorInfo.add(e.getMessage());
+//                    errorInfo.add(Arrays.toString(e.getStackTrace()));
+//                    return false;
+//                }
+//            });
         } catch (Error | Exception e) {
             logger.error("Condition not passed.");
             errorInfo.forEach(logger::error);
@@ -528,71 +528,71 @@ public class BaseTest extends WebDriverBase {
         return headers;
     }
 
-    // AWS environment credentials are required to run locally
-    public AwsSessionCredentials connectToAWS() {
-        AssumeRoleResponse assumeRoleResponse = null;
-        String accessKeyId;
-        String secretAccessKey;
-        String sessionToken;
-
-        // https://jenkins.knockrentals.com/computer/ - ondemand-cloud instances are running on Knock-Prod (us-west-2 EC2)
-        // Use EC2 instance profile to assume knock-qa-test-automation-role in Knock-Alpha and Knock-Beta accounts
-        if (isRunningOnJenkins()) {
-            logger.info("Test running on Jenkins");
-
-            try (InstanceProfileCredentialsProvider ec2CredentialsProvider =
-                         InstanceProfileCredentialsProvider.create()) {
-                try (StsClient stsClient = StsClient.builder().region(Region.US_WEST_2)
-                        .credentialsProvider(ec2CredentialsProvider).build()) {
-                    AssumeRoleRequest assumeRoleRequest = AssumeRoleRequest.builder().roleArn(
-                                    getContext().getBean("test_automation_role_arn", String.class))
-                            .roleSessionName("KnockTestAutomationSession").build();
-                    assumeRoleResponse = stsClient.assumeRole(assumeRoleRequest);
-                    accessKeyId = assumeRoleResponse.credentials().accessKeyId();
-                    secretAccessKey = assumeRoleResponse.credentials().secretAccessKey();
-                    sessionToken = assumeRoleResponse.credentials().sessionToken();
-                }
-            }
-        } else {
-            logger.info("Test running on Local");
-
-            // Copy CC_Engineering_ReadWrite role credentials to TestData\awsCred.json file
-            JSONObject roleCredentials = new JSONObject(readPayloadFromJson("awsCred.json").replace("\uFEFF", "").trim())
-                    .getJSONObject("roleCredentials");
-            accessKeyId = roleCredentials.getString("accessKeyId");
-            secretAccessKey = roleCredentials.getString("secretAccessKey");
-            sessionToken = roleCredentials.getString("sessionToken");
-        }
-
-        return new AwsSessionCredentials.Builder()
-                .accessKeyId(accessKeyId)
-                .secretAccessKey(secretAccessKey)
-                .sessionToken(sessionToken)
-                .build();
-    }
-
-    public JSONObject getRelayPhoneNumber(Integer propertyId) {
-        Community community = new Community();
-        Map<String, Object> map = community.getSourcesByCommunityId(community.getCommunityId(propertyId), 200).getBody()
-                .path("community_sources_data.find{it.relay_phones?.number != null}");
-        return new JSONObject(map);
-    }
-
-    public JSONObject retrieveTwilioCreds() {
-        SecretsManagerClientBuilder secretsManagerClientBuilder = SecretsManagerClient.builder()
-                .region(Region.US_EAST_1).credentialsProvider(StaticCredentialsProvider.create(connectToAWS()));
-
-        GetSecretValueResponse secretValueResponse;
-        try (SecretsManagerClient client = secretsManagerClientBuilder.build()) {
-            GetSecretValueRequest getSecretValueRequest = GetSecretValueRequest.builder()
-                    .secretId("knock/testAutomation/twilioCred").build();
-            secretValueResponse = client.getSecretValue(getSecretValueRequest);
-        }
-        AssertionUtils.assertTrue("Verify response status code",
-                secretValueResponse.sdkHttpResponse().statusCode() == 200);
-
-        return new JSONObject(secretValueResponse.secretString());
-    }
+//    // AWS environment credentials are required to run locally
+//    public AwsSessionCredentials connectToAWS() {
+//        AssumeRoleResponse assumeRoleResponse = null;
+//        String accessKeyId;
+//        String secretAccessKey;
+//        String sessionToken;
+//
+//        // https://jenkins.knockrentals.com/computer/ - ondemand-cloud instances are running on Knock-Prod (us-west-2 EC2)
+//        // Use EC2 instance profile to assume knock-qa-test-automation-role in Knock-Alpha and Knock-Beta accounts
+//        if (isRunningOnJenkins()) {
+//            logger.info("Test running on Jenkins");
+//
+//            try (InstanceProfileCredentialsProvider ec2CredentialsProvider =
+//                         InstanceProfileCredentialsProvider.create()) {
+//                try (StsClient stsClient = StsClient.builder().region(Region.US_WEST_2)
+//                        .credentialsProvider(ec2CredentialsProvider).build()) {
+//                    AssumeRoleRequest assumeRoleRequest = AssumeRoleRequest.builder().roleArn(
+//                                    getContext().getBean("test_automation_role_arn", String.class))
+//                            .roleSessionName("KnockTestAutomationSession").build();
+//                    assumeRoleResponse = stsClient.assumeRole(assumeRoleRequest);
+//                    accessKeyId = assumeRoleResponse.credentials().accessKeyId();
+//                    secretAccessKey = assumeRoleResponse.credentials().secretAccessKey();
+//                    sessionToken = assumeRoleResponse.credentials().sessionToken();
+//                }
+//            }
+//        } else {
+//            logger.info("Test running on Local");
+//
+//            // Copy CC_Engineering_ReadWrite role credentials to TestData\awsCred.json file
+//            JSONObject roleCredentials = new JSONObject(readPayloadFromJson("awsCred.json").replace("\uFEFF", "").trim())
+//                    .getJSONObject("roleCredentials");
+//            accessKeyId = roleCredentials.getString("accessKeyId");
+//            secretAccessKey = roleCredentials.getString("secretAccessKey");
+//            sessionToken = roleCredentials.getString("sessionToken");
+//        }
+//
+//        return new AwsSessionCredentials.Builder()
+//                .accessKeyId(accessKeyId)
+//                .secretAccessKey(secretAccessKey)
+//                .sessionToken(sessionToken)
+//                .build();
+//    }
+//
+//    public JSONObject getRelayPhoneNumber(Integer propertyId) {
+//        Community community = new Community();
+//        Map<String, Object> map = community.getSourcesByCommunityId(community.getCommunityId(propertyId), 200).getBody()
+//                .path("community_sources_data.find{it.relay_phones?.number != null}");
+//        return new JSONObject(map);
+//    }
+//
+//    public JSONObject retrieveTwilioCreds() {
+//        SecretsManagerClientBuilder secretsManagerClientBuilder = SecretsManagerClient.builder()
+//                .region(Region.US_EAST_1).credentialsProvider(StaticCredentialsProvider.create(connectToAWS()));
+//
+//        GetSecretValueResponse secretValueResponse;
+//        try (SecretsManagerClient client = secretsManagerClientBuilder.build()) {
+//            GetSecretValueRequest getSecretValueRequest = GetSecretValueRequest.builder()
+//                    .secretId("knock/testAutomation/twilioCred").build();
+//            secretValueResponse = client.getSecretValue(getSecretValueRequest);
+//        }
+//        AssertionUtils.assertTrue("Verify response status code",
+//                secretValueResponse.sdkHttpResponse().statusCode() == 200);
+//
+//        return new JSONObject(secretValueResponse.secretString());
+//    }
 
     public JsonNode convertToJson(String strToConvert) {
         ObjectMapper objectMapper = new ObjectMapper();
