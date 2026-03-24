@@ -1,0 +1,22 @@
+			***********************************************
+			Test Script Name	: RELATIVELOCATORSINTROTEST
+			Test Environment	: 
+			Test Executed By	: DEEPTI'S LAPTOP
+			Java Version		: 17.0.1
+			OS Name / Version	: WINDOWS 10 / 10.0
+			Computer Name		: LAPTOP-PBJUA5KP
+			Browser Name / Version	: 
+			Test Start Time		: Tue Mar 24 17:06:17 IST 2026
+			Test End Time		: 
+			Script Execution Time	: 
+			Total Number Of Steps	: 
+			Script Execution Status: 
+								: 
+			***********************************************
+
+Step 1		03/24/202617:06:18		PASS
+------------------------------------------------------------
+Description	: Verify text is entered to user name text box textbox
+Actual Result	: Text 'sreedeepti@playwright.test' is entered in to user name text box textbox
+
+

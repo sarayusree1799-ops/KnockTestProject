@@ -1,0 +1,4 @@
+************************** - VALIDATELOGINTEST - STEPS TO REPRODUCE DEFECT - **************************
+
+Verify element is displayed Username
+

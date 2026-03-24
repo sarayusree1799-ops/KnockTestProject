@@ -1,0 +1,3 @@
+************************** - RELATIVELOCATORSINTROTEST - STEPS TO REPRODUCE DEFECT - **************************
+
+Verify text is entered to user name text box textbox
