@@ -1,6 +1,0 @@
-Step 1		03/24/202616:38:29		PASS
-------------------------------------------------------------
-Description	: Verify text is entered to user name text box textbox
-Actual Result	: Text 'sreedeepti@playwright.test' is entered in to user name text box textbox
-
-
