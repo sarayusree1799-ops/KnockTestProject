@@ -4,8 +4,8 @@
 <suite name="UIAutomation" verbose="10" parallel="methods" thread-count="10">
     <listeners>
         <listener class-name="FrameWorkPackage.com.rp.reports.listeners.ATUReportsListenerExt"/>
-        <listener class-name="Reports.com.rp.reports.listeners.ConfigurationListener"/>
-        <listener class-name="Reports.com.rp.reports.listeners.MethodListener"/>
+        <listener class-name="FWReports.com.rp.reports.listeners.ConfigurationListener"/>
+        <listener class-name="FWReports.com.rp.reports.listeners.MethodListener"/>
         <listener class-name="FrameWorkPackage.com.rp.reports.listeners.ScreenShotListener"/>
     </listeners>
 

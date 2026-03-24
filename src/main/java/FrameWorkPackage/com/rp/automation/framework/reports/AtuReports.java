@@ -5,11 +5,11 @@ import FrameWorkPackage.com.rp.automation.framework.annotations.AzureTestCaseId;
 import FrameWorkPackage.com.rp.automation.framework.util.AzureUtils;
 import FrameWorkPackage.com.rp.automation.framework.util.ImageComparisonsUtil;
 import FrameWorkPackage.com.rp.automation.framework.webdriver.DriverManager;
-import Reports.com.rp.reports.ATUReports;
-import Reports.com.rp.reports.logging.LogAs;
-import Reports.com.rp.reports.utils.Utils;
-import Reports.com.rp.selenium.reports.CaptureScreen;
-import Reports.com.rp.selenium.reports.CaptureScreen.ScreenshotOf;
+import FWReports.com.rp.reports.ATUReports;
+import FWReports.com.rp.reports.logging.LogAs;
+import FWReports.com.rp.reports.utils.Utils;
+import FWReports.com.rp.selenium.reports.CaptureScreen;
+import FWReports.com.rp.selenium.reports.CaptureScreen.ScreenshotOf;
 import org.testng.ITestResult;
 
 import java.awt.image.BufferedImage;

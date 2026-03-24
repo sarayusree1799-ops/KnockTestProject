@@ -9,6 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
+        <bsh.version>2.0b6</bsh.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -16,7 +17,7 @@
         <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
         <lombok.version>1.18.30</lombok.version>
         <jackson.version>2.16.2</jackson.version>
-        <xml-apis.version>2.0.2</xml-apis.version>
+        <xml-apis.version>1.0.b2</xml-apis.version>
         <org.apache.poi.version>3.10-FINAL</org.apache.poi.version>
         <json-path.version>5.4.0</json-path.version>
         <com.jayway.jsonpath.version>2.9.0</com.jayway.jsonpath.version>
@@ -37,11 +38,18 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache-extras.beanshell</groupId>
+            <artifactId>bsh</artifactId>
+            <version>${bsh.version}</version>
+        </dependency>
+
         <!-- Source: https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>4.39.0</version>
+            <version>4.0.0</version>
             <scope>compile</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
@@ -151,18 +159,12 @@
             <artifactId>jfreechart</artifactId>
             <version>1.0.13</version>
         </dependency>
+        <!-- Source: https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
-            <scope>compile</scope>
-        </dependency>
-        <!-- Source: https://mvnrepository.com/artifact/org.json/json -->
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>${org.json.version}</version>
-            <scope>compile</scope>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>6.0.3</version>
+            <scope>test</scope>
         </dependency>
         <!-- Source: https://mvnrepository.com/artifact/org.asynchttpclient/async-http-client -->
         <dependency>
@@ -234,12 +236,6 @@
             <artifactId>json-path</artifactId>
             <version>${com.jayway.jsonpath.version}</version>
         </dependency>
-        <!-- 1. For Json Schema validation: https://mvnrepository.com/artifact/com.github.fge/json-schema-validator -->
-        <dependency>
-            <groupId>com.github.fge</groupId>
-            <artifactId>json-schema-validator</artifactId>
-            <version>${json-schema-validator.version}</version>
-        </dependency>
 
         <!-- Source: https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
@@ -284,16 +280,17 @@
         </dependency>
 
         <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>aws-sdk-java</artifactId>
+            <version>${awssdk.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>net.snowflake</groupId>
             <artifactId>snowflake-jdbc</artifactId>
             <version>${snowflake-jdbc.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-            <version>2.9.0</version>
-        </dependency>
         <dependency>
             <groupId>com.github.zafarkhaja</groupId>
             <artifactId>java-semver</artifactId>

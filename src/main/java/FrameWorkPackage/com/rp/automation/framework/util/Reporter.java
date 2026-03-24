@@ -84,7 +84,7 @@ public class Reporter {
         NotePadResultFile1 = fileName + "_" + vGetDateForNotepad;
         NotepadStepsFile = Paths.get(System.getProperty("user.dir"), testCaseFolderName, fileName + ".txt").toString();
         NotepadLogFile = Paths.get(System.getProperty("user.dir"), reportFolderName, fileName + "_ExecutionLOG_" + vGetDateForNotepad + ".txt").toString();
-        File RF = new File(NotePadResultFile1);
+        File RF = new File(NotePadResultFile);
         File SF = new File(NotepadStepsFile);
         File LF = new File(NotepadLogFile);
         BufferedWriter wRF = new BufferedWriter(new FileWriter(RF));
